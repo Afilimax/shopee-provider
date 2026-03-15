@@ -1,6 +1,7 @@
 {
   "name": "@afilimax/shopee-provider",
   "version": "0.1.0",
+  "description": "Provedor de links de afiliados para a Shopee, integrado ao ecossistema Afilimax.",
   "type": "commonjs",
   "repository": {
     "type": "git",
@@ -29,11 +30,15 @@
     "access": "public"
   },
   "keywords": [
-    "marcuth"
+    "afilimax",
+    "shopee",
+    "affiliate",
+    "provider"
   ],
   "author": "Marcuth",
   "license": "MIT",
   "devDependencies": {
+    "@afilimax/core": "^0.4.1",
     "@types/node": "^25.5.0",
     "@vitest/coverage-v8": "^4.1.0",
     "eslint": "^10.0.3",
