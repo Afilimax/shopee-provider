@@ -1,3 +1,10 @@
+<a href="https://afilimax.net"><img src="https://raw.githubusercontent.com/Afilimax/.github/main/assets/npm-banner.svg" alt="Afilimax — Encontre a oferta. Gere o link. Divulgue sozinho." width="100%" /></a>
+
+[![npm version](https://img.shields.io/npm/v/%40afilimax%2Fshopee-provider?logo=npm)](https://www.npmjs.com/package/@afilimax/shopee-provider)
+[![npm downloads](https://img.shields.io/npm/dm/%40afilimax%2Fshopee-provider?logo=npm)](https://www.npmjs.com/package/@afilimax/shopee-provider)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Afilimax/shopee-provider/blob/HEAD/LICENSE)
+[![Website](https://img.shields.io/badge/website-afilimax.net-7857FF)](https://afilimax.net)
+
 # @afilimax/shopee-provider
 
 Provedor de links de afiliados para a Shopee, integrado ao ecossistema Afilimax. Este pacote permite converter URLs de produtos da Shopee em links de afiliados encurtados utilizando a API oficial de parcerias da Shopee.
@@ -69,3 +76,11 @@ O provedor identifica automaticamente URLs dos seguintes domínios:
 ---
 
 Produzido com ❤️ pela equipe **Afilimax**.
+
+---
+
+## Automatize sua operação de afiliados
+
+> Use este pacote para automatizar sua operação de afiliados. Conheça a plataforma Afilimax e transforme ofertas em links e divulgação automática.
+
+[Conheça a Afilimax](https://afilimax.net) · [Pacote no npm](https://www.npmjs.com/package/@afilimax/shopee-provider) · [Repositório no GitHub](https://github.com/Afilimax/shopee-provider)
