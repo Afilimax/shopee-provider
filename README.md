@@ -7,75 +7,149 @@
 
 # @afilimax/shopee-provider
 
-Provedor de links de afiliados para a Shopee, integrado ao ecossistema Afilimax. Este pacote permite converter URLs de produtos da Shopee em links de afiliados encurtados utilizando a API oficial de parcerias da Shopee.
+Provedor de links de afiliado da Shopee para o ecossistema Afilimax. O pacote chama a API GraphQL do programa de afiliados e converte URLs de produtos em links curtos de divulgação.
+
+## Recursos
+
+- Geração de links pela mutation `generateShortLink` da Shopee.
+- Autenticação com App ID e App Secret do programa de afiliados.
+- Assinatura SHA-256 das requisições com timestamp.
+- Sub IDs para rastreamento interno das conversões.
+- Remoção da query string da URL antes do envio.
+- Comunicação por requisições HTTP, sem navegador automatizado.
+- Compatibilidade com `AffiliateProvider` e `AffiliateManager`.
 
 ## Instalação
 
 ```bash
-npm install @afilimax/shopee-provider
+npm install @afilimax/shopee-provider @afilimax/core
 ```
 
-> [!IMPORTANT]
-> Este pacote requer `@afilimax/core` como dependência de par (peer dependency).
+O `@afilimax/core` fornece a classe `AffiliateProvider` usada pelo pacote.
 
 ## Como usar
 
-O `ShopeeProvider` utiliza autenticação baseada em `appId` e `appSecret` fornecidos pelo portal de afiliados da Shopee.
+Informe as credenciais do programa de afiliados e um array de Sub IDs. O array pode ser vazio:
 
 ```typescript
-import { ShopeeProvider } from "@afilimax/shopee-provider";
+import { ShopeeProvider } from "@afilimax/shopee-provider"
 
 const provider = new ShopeeProvider({
-    appId: "seu_app_id",
-    appSecret: "seu_app_secret",
-    subIds: ["seu_sub_id_opcional"]
-});
+    appId: process.env.SHOPEE_APP_ID!,
+    appSecret: process.env.SHOPEE_APP_SECRET!,
+    subIds: ["your-sub-id"],
+})
 
-async function run() {
-    const originalUrl = "https://shopee.com.br/produto-exemplo-i.123456.7891011";
-    
+async function main() {
+    const productUrl = "https://shopee.com.br/product-example-i.123456.7891011"
+
     try {
-        const affiliateUrl = await provider.createAffiliateUrl(originalUrl);
-        console.log("Link de Afiliado:", affiliateUrl); // Retorna o link encurtado (Ex: https://shpe.ee/...)
+        const affiliateUrl = await provider.createAffiliateUrl(productUrl)
+        console.log("Affiliate URL:", affiliateUrl)
     } catch (error) {
-        console.error("Erro ao gerar link:", error.message);
+        console.error("Failed to create affiliate URL:", error)
     }
 }
 
-run();
+main()
 ```
 
-## Configurações
+### Uso com AffiliateManager
 
-A interface `ShopeeProviderOptions` aceita as seguintes propriedades:
+```typescript
+import { AffiliateManager } from "@afilimax/core"
+import { ShopeeProvider } from "@afilimax/shopee-provider"
 
-| Propriedade | Tipo | Descrição |
+const manager = new AffiliateManager([
+    new ShopeeProvider({
+        appId: process.env.SHOPEE_APP_ID!,
+        appSecret: process.env.SHOPEE_APP_SECRET!,
+        subIds: [],
+    }),
+])
+
+const affiliateUrl = await manager.createAffiliateUrl(
+    "https://shopee.com.br/product-example-i.123456.7891011",
+)
+
+console.log("Affiliate URL:", affiliateUrl)
+```
+
+O gerenciador retorna `null` quando nenhum provedor registrado aceita a URL.
+
+## Configuração
+
+A interface `ShopeeProviderOptions` possui três campos obrigatórios:
+
+| Opção | Tipo | Descrição |
 | :--- | :--- | :--- |
-| `appId` | `string` | Seu App ID obtido no portal de Afiliados da Shopee. |
-| `appSecret` | `string` | Sua App Secret correspondente para assinatura de requisições. |
-| `subIds` | `string[]` | (Opcional) Sub IDs para rastreamento interno (máximo de 5). |
+| `appId` | `string` | App ID obtido no portal de afiliados da Shopee. |
+| `appSecret` | `string` | Segredo usado para assinar as requisições com SHA-256. |
+| `subIds` | `string[]` | Identificadores adicionais de rastreamento; use `[]` quando não precisar deles. |
 
-## Domínios Suportados
+Mantenha o App Secret em variáveis de ambiente ou em outro armazenamento seguro, fora do controle de versão.
 
-O provedor identifica automaticamente URLs dos seguintes domínios:
+## Referência da API
+
+### `new ShopeeProvider(options)`
+
+Cria um provedor com as credenciais e os Sub IDs informados.
+
+### `createAffiliateUrl(url: string): Promise<string>`
+
+Remove os parâmetros de consulta da URL, assina a requisição e chama a API GraphQL. Retorna o campo `shortLink` ou lança um erro quando a API informa falhas ou não retorna o link.
+
+| Parâmetro | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `url` | `string` | URL do produto ou página aceita pela API de afiliados. |
+
+### `supportsUrl(url: string): boolean`
+
+Método herdado de `AffiliateProvider` que verifica o hostname e seus subdomínios.
+
+### Domínios suportados
+
 - `shopee.com.br`
 - `shopee.com`
 - `sho.pe`
 - `shp.ee`
 
+### Erros comuns
+
+| Erro | Causa provável |
+| :--- | :--- |
+| `Shopee Error` | A API retornou erros GraphQL; o status HTTP e as mensagens são incluídos no erro. |
+| `Shopee API response missing shortLink` | A resposta não contém um link curto no caminho esperado. |
+
 ## Desenvolvimento
 
-### Scripts Disponíveis
+Instale as dependências com `npm install`. Os scripts disponíveis são:
 
-- `npm run build`: Compila o projeto para o diretório `dist`.
-- `npm run dev`: Executa o projeto em ambiente de desenvolvimento usando `ts-node`.
-- `npm run test`: Executa os testes unitários com Vitest.
-- `npm run lint`: Verifica e corrige problemas de estilo de código.
-- `npm run format`: Formata o código fonte usando Prettier.
+| Comando | Finalidade |
+| :--- | :--- |
+| `npm run dev` | Executa `src/index.ts` com `ts-node`. |
+| `npm run build` | Compila o TypeScript para `dist/`. |
+| `npm test` | Executa os testes uma vez com Vitest. |
+| `npm run test:watch` | Executa os testes em modo de observação. |
+| `npm run test:cov` | Executa os testes com cobertura. |
+| `npm run lint` | Executa o ESLint com correção automática. |
+| `npm run format` | Formata os arquivos de `src/` com Prettier. |
 
----
+O teste prático incluído em `npm test` lê `__tests__/auth.json` e é ignorado quando as credenciais estão ausentes:
 
-Produzido com ❤️ pela equipe **Afilimax**.
+```json
+{
+    "appId": "your-app-id",
+    "appSecret": "your-app-secret",
+    "subIds": ["your-sub-id"]
+}
+```
+
+Não versione esse arquivo nem credenciais reais.
+
+## Licença
+
+Distribuído sob a licença [MIT](./LICENSE).
 
 ---
 
